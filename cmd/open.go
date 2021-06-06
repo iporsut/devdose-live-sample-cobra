@@ -16,25 +16,21 @@ var openCmd = &cobra.Command{
 	Use:   "open",
 	Short: "Open on browser by ID",
 	Run: func(cmd *cobra.Command, args []string) {
-		resp, err := http.Get("https://dev.to/api/articles?username=iporsut")
+		resp, err := http.Get(fmt.Sprintf("https://dev.to/api/articles/%d", openID))
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 		defer resp.Body.Close()
 
-		var posts []Post
-		err = json.NewDecoder(resp.Body).Decode(&posts)
+		var post Post
+		err = json.NewDecoder(resp.Body).Decode(&post)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 
-		for _, post := range posts {
-			if post.ID == openID {
-				exec.Command("open", "-a", "firefox", post.URL).Run()
-			}
-		}
+		exec.Command("open", "-a", "firefox", post.URL).Run()
 	},
 }
 
